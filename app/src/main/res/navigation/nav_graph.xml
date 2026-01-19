@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/libraryFragment">
+
+    <!-- Library Fragment -->
+    <fragment
+        android:id="@+id/libraryFragment"
+        android:name="ge.tsu.finalProject.presentation.library.LibraryFragment"
+        android:label="Library"
+        tools:layout="@layout/fragment_library" />
+
+    <!-- My Space Fragment -->
+    <fragment
+        android:id="@+id/mySpaceFragment"
+        android:name="ge.tsu.finalProject.presentation.myspace.MySpaceFragment"
+        android:label="My Space"
+        tools:layout="@layout/fragment_my_space" />
+
+    <!-- AI Hub Fragment -->
+    <fragment
+        android:id="@+id/aiHubFragment"
+        android:name="ge.tsu.finalProject.presentation.aihub.AIHubFragment"
+        android:label="AI Hub"
+        tools:layout="@layout/fragment_ai_hub" />
+
+    <!-- Search Fragment -->
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="ge.tsu.finalProject.presentation.search.SearchFragment"
+        android:label="Search"
+        tools:layout="@layout/fragment_search" />
+
+</navigation>

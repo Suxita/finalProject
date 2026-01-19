@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Anime Tracker</string>
+
+    <!-- Navigation -->
+    <string name="title_library">ბიბლიოთეკა</string>
+    <string name="title_search">ძიება</string>
+    <string name="title_my_space">ჩემი სივრცე</string>
+    <string name="title_ai_hub">AI Hub</string>
+
+    <!-- Search -->
+    <string name="search_hint">მოძებნეთ anime…</string>
+    <string name="no_results">შედეგები ვერ მოიძებნა</string>
+    <string name="clear_search">გასუფთავება</string>
+
+    <!-- Library -->
+    <string name="loading">იტვირთება…</string>
+    <string name="error_loading">შეცდომა ჩატვირთვისას</string>
+    <string name="retry">ხელახლა</string>
+
+    <!-- Buttons -->
+    <string name="btn_watched">ნანახები</string>
+    <string name="btn_plan_to_watch">სანახავი</string>
+    <string name="btn_delete">წაშლა</string>
+    <string name="btn_like">მოწონება</string>
+    <string name="btn_dislike">არ მოწონს</string>
+
+    <!-- Messages -->
+    <string name="added_to_watched">დამატა ნანახებში</string>
+    <string name="added_to_plan_to_watch">დამატა სანახავებში</string>
+    <string name="removed">წაშლილია</string>
+
+    <!-- Network -->
+    <string name="no_internet">ინტერნეტ კავშირი არ არის</string>
+    <string name="network_error">ქსელის შეცდომა</string>
+
+    <!-- AI Hub -->
+    <string name="analyze_taste">შეაფასე ჩემი გემოვნება</string>
+    <string name="daily_recommendation">დღის რეკომენდაცია</string>
+    <string name="no_liked_anime">გთხოვთ მონიშნოთ რამელი anime მოგწონთ</string>
+</resources>
