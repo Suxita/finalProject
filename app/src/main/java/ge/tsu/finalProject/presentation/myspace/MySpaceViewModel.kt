@@ -39,7 +39,7 @@ class MySpaceViewModel @Inject constructor(
         viewModelScope.launch {
             updateLikeStatusUseCase(animeId, true)
             _actionMessage.value = "მოწონებულია ✓"
-            _actionMessage.value = null // Reset after showing
+            _actionMessage.value = null
         }
     }
 

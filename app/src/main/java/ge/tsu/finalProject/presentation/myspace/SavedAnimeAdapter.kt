@@ -44,34 +44,27 @@ class SavedAnimeAdapter(
             val anime = savedAnime.anime
 
             binding.apply {
-                // Title
                 tvTitle.text = anime.title
 
-                // Score
                 tvScore.text = if (anime.score != null) {
                     "⭐ ${anime.score}"
                 } else {
                     "⭐ N/A"
                 }
 
-                // Genres
                 val genresText = anime.genres.take(3).joinToString(", ")
                 tvGenres.text = genresText
 
-                // Episodes
                 tvEpisodes.text = "${anime.episodes ?: "?"} ეპიზოდი"
 
-                // Type
                 tvType.text = anime.type ?: "TV"
 
-                // Load Image
                 ivPoster.load(anime.imageUrl) {
                     crossfade(true)
                     placeholder(R.drawable.ic_placeholder_anime)
                     error(R.drawable.ic_error_image)
                 }
 
-                // Like/Dislike Buttons (only for watched anime)
                 if (showLikeButtons) {
                     likeButtonsLayout.visible()
                     updateLikeButtons(savedAnime.isLiked)
@@ -95,7 +88,6 @@ class SavedAnimeAdapter(
                     likeButtonsLayout.gone()
                 }
 
-                // Move to Watched button (for plan to watch)
                 if (showMoveButton) {
                     btnMoveToWatched.visible()
                     btnMoveToWatched.setOnClickListener {
@@ -105,7 +97,6 @@ class SavedAnimeAdapter(
                     btnMoveToWatched.gone()
                 }
 
-                // Delete Button
                 btnDelete.setOnClickListener {
                     showDeleteConfirmationDialog(savedAnime)
                 }

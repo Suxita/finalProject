@@ -37,50 +37,41 @@ class AnimeAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(savedAnime: SavedAnime) {
-            val anime = savedAnime.anime // Extract the nested anime object
+            val anime = savedAnime.anime
 
             binding.apply {
-                // Set title
                 tvTitle.text = anime.title
 
-                // Set synopsis
                 tvSynopsis.text = anime.synopsis?.take(150) ?: "აღწერა არ არის"
 
-                // Load image with Coil
                 ivCover.load(anime.imageUrl) {
                     crossfade(true)
                     placeholder(R.drawable.ic_placeholder_anime)
                     error(R.drawable.ic_error_image)
                 }
 
-                // Set genres
                 tvGenres.text = if (anime.genres.isNotEmpty()) {
                     anime.genres.joinToString(", ")
                 } else {
                     "ჟანრი არ არის"
                 }
 
-                // Set score
                 tvScore.text = anime.score?.toString() ?: "N/A"
 
-                // Set episodes
                 tvEpisodes.text = if (anime.episodes != null && anime.episodes > 0) {
                     "${anime.episodes} ეპიზოდი"
                 } else {
                     "N/A"
                 }
 
-                // Set year
                 tvYear.text = anime.year?.toString() ?: "N/A"
 
-                // Set button states based on watch status
                 val isWatched = savedAnime.watchStatus == WatchStatus.WATCHED
                 val isPlanToWatch = savedAnime.watchStatus == WatchStatus.PLAN_TO_WATCH
 
                 btnWatched.isSelected = isWatched
                 btnPlanToWatch.isSelected = isPlanToWatch
 
-                // Set like button state (handles null, true, false)
                 when (savedAnime.isLiked) {
                     true -> {
                         btnLike.isSelected = true
@@ -96,11 +87,9 @@ class AnimeAdapter(
                     }
                 }
 
-                // Set button text based on state
                 btnWatched.text = if (isWatched) "ნანახი ✓" else "ნანახი"
                 btnPlanToWatch.text = if (isPlanToWatch) "სანახავი ✓" else "სანახავი"
 
-                // Click listeners
                 root.setOnClickListener {
                     onItemClick(savedAnime)
                 }

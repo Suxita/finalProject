@@ -34,18 +34,14 @@ class LibraryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Setup RecyclerView FIRST - before observing data
         setupRecyclerView()
 
-        // Setup filter chips
         setupFilterChips()
 
-        // Then observe ViewModel
         observeViewModel()
     }
 
     private fun setupRecyclerView() {
-        // Initialize adapter with callbacks
         animeAdapter = AnimeAdapter(
             onItemClick = { anime ->
                 // Handle item click - navigate to detail screen
@@ -99,13 +95,10 @@ class LibraryFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        // Observe filtered anime list
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.filteredAnimeList.collect { animeList ->
-                // Update adapter with new data
                 animeAdapter.submitList(animeList)
 
-                // Show/hide empty state - using correct ID from XML
                 if (animeList.isEmpty()) {
                     binding.recyclerView.visibility = View.GONE
                     binding.emptyStateLayout.visibility = View.VISIBLE
@@ -116,14 +109,12 @@ class LibraryFragment : Fragment() {
             }
         }
 
-        // Observe loading state
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.isLoading.collect { isLoading ->
                 binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             }
         }
 
-        // Observe errors
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.error.collect { errorMessage ->
                 errorMessage?.let {
