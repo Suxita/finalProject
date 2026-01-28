@@ -14,16 +14,16 @@
         android:layout_height="wrap_content"
         android:padding="12dp">
 
-        <!-- Poster Image -->
+        <!-- Cover Image -->
         <ImageView
-            android:id="@+id/ivPoster"
+            android:id="@+id/ivCover"
             android:layout_width="80dp"
             android:layout_height="120dp"
             android:scaleType="centerCrop"
-            android:contentDescription="Anime poster"
+            android:contentDescription="Anime cover"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_placeholder_anime" />
+            tools:src="@drawable/ic_placeholder" />
 
         <!-- Title -->
         <TextView
@@ -36,12 +36,24 @@
             android:textStyle="bold"
             android:maxLines="2"
             android:ellipsize="end"
-            app:layout_constraintStart_toEndOf="@id/ivPoster"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/ivPoster"
+            app:layout_constraintStart_toEndOf="@id/ivCover"
+            app:layout_constraintEnd_toStartOf="@id/btnLike"
+            app:layout_constraintTop_toTopOf="@id/ivCover"
             tools:text="Attack on Titan" />
 
-        <!-- Info Row (Score, Episodes, Type) -->
+        <!-- Like Button -->
+        <ImageButton
+            android:id="@+id/btnLike"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_favorite"
+            android:contentDescription="Like"
+            app:tint="@color/gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Info Row -->
         <LinearLayout
             android:id="@+id/infoRow"
             android:layout_width="0dp"
@@ -49,11 +61,10 @@
             android:orientation="horizontal"
             android:layout_marginStart="12dp"
             android:layout_marginTop="4dp"
-            app:layout_constraintStart_toEndOf="@id/ivPoster"
+            app:layout_constraintStart_toEndOf="@id/ivCover"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTitle">
 
-            <!-- Score -->
             <TextView
                 android:id="@+id/tvScore"
                 android:layout_width="wrap_content"
@@ -61,7 +72,9 @@
                 android:textColor="@color/teal_700"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                tools:text="⭐ 8.5" />
+                android:drawablePadding="2dp"
+                app:drawableStartCompat="@drawable/ic_star"
+                tools:text="8.5" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -70,7 +83,6 @@
                 android:textColor="@color/gray"
                 android:layout_marginHorizontal="4dp" />
 
-            <!-- Episodes -->
             <TextView
                 android:id="@+id/tvEpisodes"
                 android:layout_width="wrap_content"
@@ -86,27 +98,57 @@
                 android:textColor="@color/gray"
                 android:layout_marginHorizontal="4dp" />
 
-            <!-- Type -->
             <TextView
-                android:id="@+id/tvType"
+                android:id="@+id/tvYear"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/gray"
                 android:textSize="12sp"
-                tools:text="TV" />
+                tools:text="2013" />
 
         </LinearLayout>
+
+        <!-- Genres -->
+        <TextView
+            android:id="@+id/tvGenres"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/gray"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintStart_toEndOf="@id/ivCover"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/infoRow"
+            tools:text="Action, Drama, Fantasy" />
+
+        <!-- Synopsis -->
+        <TextView
+            android:id="@+id/tvSynopsis"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintStart_toEndOf="@id/ivCover"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvGenres"
+            tools:text="Several hundred years ago, humans were nearly exterminated by Titans..." />
 
         <!-- Action Buttons -->
         <LinearLayout
             android:id="@+id/actionButtons"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="12dp"
-            android:layout_marginStart="12dp"
-            app:layout_constraintTop_toBottomOf="@id/infoRow"
-            app:layout_constraintStart_toEndOf="@id/ivPoster"
+            app:layout_constraintTop_toBottomOf="@id/ivCover"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
             <com.google.android.material.button.MaterialButton
@@ -118,8 +160,6 @@
                 android:text="ნანახი"
                 android:textSize="12sp"
                 app:cornerRadius="8dp"
-                app:icon="@drawable/ic_check"
-                app:iconSize="16dp"
                 style="@style/Widget.Material3.Button.TonalButton" />
 
             <com.google.android.material.button.MaterialButton
@@ -128,11 +168,21 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 android:text="სანახავი"
                 android:textSize="12sp"
                 app:cornerRadius="8dp"
-                app:icon="@drawable/ic_bookmark"
-                app:iconSize="16dp"
+                style="@style/Widget.Material3.Button.TonalButton" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="წაშლა"
+                android:textSize="12sp"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ic_delete"
                 style="@style/Widget.Material3.Button.OutlinedButton" />
 
         </LinearLayout>

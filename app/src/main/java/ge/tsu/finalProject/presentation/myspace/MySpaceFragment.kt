@@ -9,16 +9,17 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
+import dagger.hilt.android.AndroidEntryPoint
 import ge.tsu.finalProject.databinding.FragmentMySpaceBinding
 import ge.tsu.finalProject.util.gone
 import ge.tsu.finalProject.util.visible
-
+@AndroidEntryPoint
 class MySpaceFragment : Fragment() {
 
     private var _binding: FragmentMySpaceBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: MySpaceViewModel by viewModels { MySpaceViewModelFactory() }
+    private val viewModel: MySpaceViewModel by viewModels()
 
     private lateinit var watchedAdapter: SavedAnimeAdapter
     private lateinit var planToWatchAdapter: SavedAnimeAdapter

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ge.tsu.finalProject.databinding.FragmentAiHubBinding
 import ge.tsu.finalProject.domain.model.DailyRecommendation
 import ge.tsu.finalProject.domain.model.TasteAnalysis
@@ -14,12 +15,14 @@ import ge.tsu.finalProject.presentation.common.ViewState
 import ge.tsu.finalProject.util.gone
 import ge.tsu.finalProject.util.visible
 
+
+@AndroidEntryPoint
 class AIHubFragment : Fragment() {
 
     private var _binding: FragmentAiHubBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: AIHubViewModel by viewModels { AIHubViewModelFactory() }
+    private val viewModel: AIHubViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,

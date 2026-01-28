@@ -1,16 +1,11 @@
 package ge.tsu.finalProject
 
 import android.app.Application
-import ge.tsu.finalProject.di.AppModule
+import dagger.hilt.android.HiltAndroidApp
 
-class AnimeTrackerApplication : Application() {
-
+@HiltAndroidApp
+class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-
-        AppModule.initialize(
-            context = this,
-            claudeApiKey = BuildConfig.CLAUDE_API_KEY
-        )
     }
 }

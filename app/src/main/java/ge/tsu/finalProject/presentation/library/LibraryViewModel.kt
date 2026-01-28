@@ -1,84 +1,138 @@
 package ge.tsu.finalProject.presentation.library
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ge.tsu.finalProject.domain.model.Anime
+import dagger.hilt.android.lifecycle.HiltViewModel
+import ge.tsu.finalProject.domain.model.SavedAnime
 import ge.tsu.finalProject.domain.model.WatchStatus
-import ge.tsu.finalProject.domain.usecase.GetAnimeLibraryUseCase
-import ge.tsu.finalProject.domain.usecase.SaveAnimeUseCase
-import ge.tsu.finalProject.presentation.common.ViewState
+import ge.tsu.finalProject.domain.repository.AnimeRepository
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LibraryViewModel(
-    private val getAnimeLibraryUseCase: GetAnimeLibraryUseCase,
-    private val saveAnimeUseCase: SaveAnimeUseCase
+enum class FilterType {
+    ALL, WATCHED, PLAN_TO_WATCH
+}
+
+@HiltViewModel
+class LibraryViewModel @Inject constructor(
+    private val animeRepository: AnimeRepository
 ) : ViewModel() {
 
-    private val _animeList = MutableLiveData<ViewState<List<Anime>>>(ViewState.Idle)
-    val animeList: LiveData<ViewState<List<Anime>>> = _animeList
+    private val tag = "LibraryViewModel"
 
-    private var currentPage = 1
-    private var isLoading = false
-    private val allAnimeList = mutableListOf<Anime>()
+    // Current filter
+    private val _currentFilter = MutableStateFlow(FilterType.ALL)
+    val currentFilter: StateFlow<FilterType> = _currentFilter.asStateFlow()
+
+    // All anime from database
+    private val _allAnimeList = animeRepository.getAllSavedAnime()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    // Filtered anime list based on current filter
+    val filteredAnimeList: StateFlow<List<SavedAnime>> = combine(
+        _allAnimeList,
+        _currentFilter
+    ) { animeList, filter ->
+        Log.d(tag, "Filtering ${animeList.size} anime with filter: $filter")
+        when (filter) {
+            FilterType.ALL -> animeList
+            FilterType.WATCHED -> animeList.filter { it.watchStatus == WatchStatus.WATCHED }
+            FilterType.PLAN_TO_WATCH -> animeList.filter { it.watchStatus == WatchStatus.PLAN_TO_WATCH }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    // Loading state
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    // Error state
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
 
     init {
-        loadAnimeLibrary()
-    }
-
-    fun loadAnimeLibrary() {
-        if (isLoading) return
-
+        // Debug log
         viewModelScope.launch {
-            isLoading = true
-
-            if (currentPage == 1) {
-                _animeList.value = ViewState.Loading
+            _allAnimeList.collect { list ->
+                Log.d(tag, "Anime list updated: ${list.size} items")
             }
+        }
+    }
 
-            getAnimeLibraryUseCase(currentPage).fold(
-                onSuccess = { animeList ->
-                    if (currentPage == 1) {
-                        allAnimeList.clear()
-                    }
-                    allAnimeList.addAll(animeList)
+    fun setFilter(filter: FilterType) {
+        Log.d(tag, "Setting filter to: $filter")
+        _currentFilter.value = filter
+    }
 
-                    _animeList.value = ViewState.Success(allAnimeList.toList())
-                    isLoading = false
-                },
-                onFailure = { error ->
-                    _animeList.value = ViewState.Error(
-                        error.message ?: "დაფიქსირდა შეცდომა"
-                    )
-                    isLoading = false
+    fun toggleWatched(anime: SavedAnime) {
+        viewModelScope.launch {
+            try {
+                val newStatus = if (anime.watchStatus == WatchStatus.WATCHED) {
+                    WatchStatus.PLAN_TO_WATCH
+                } else {
+                    WatchStatus.WATCHED
                 }
-            )
+                animeRepository.updateWatchStatus(anime.anime.id, newStatus)
+                Log.d(tag, "Toggled watched for: ${anime.anime.title}")
+            } catch (e: Exception) {
+                Log.e(tag, "Error toggling watched", e)
+                _error.value = "შეცდომა: ${e.message}"
+            }
         }
     }
 
-    fun loadNextPage() {
-        if (!isLoading) {
-            currentPage++
-            loadAnimeLibrary()
-        }
-    }
-
-    fun refresh() {
-        currentPage = 1
-        allAnimeList.clear()
-        loadAnimeLibrary()
-    }
-
-    fun markAsWatched(anime: Anime) {
+    fun togglePlanToWatch(anime: SavedAnime) {
         viewModelScope.launch {
-            saveAnimeUseCase(anime, WatchStatus.WATCHED)
+            try {
+                val newStatus = if (anime.watchStatus == WatchStatus.PLAN_TO_WATCH) {
+                    WatchStatus.WATCHED
+                } else {
+                    WatchStatus.PLAN_TO_WATCH
+                }
+                animeRepository.updateWatchStatus(anime.anime.id, newStatus)
+                Log.d(tag, "Toggled plan to watch for: ${anime.anime.title}")
+            } catch (e: Exception) {
+                Log.e(tag, "Error toggling plan to watch", e)
+                _error.value = "შეცდომა: ${e.message}"
+            }
         }
     }
 
-    fun markAsPlanToWatch(anime: Anime) {
+    fun toggleLike(anime: SavedAnime) {
         viewModelScope.launch {
-            saveAnimeUseCase(anime, WatchStatus.PLAN_TO_WATCH)
+            try {
+                val newLikedState = when (anime.isLiked) {
+                    true -> false
+                    false -> null
+                    null -> true
+                }
+                animeRepository.updateLikeStatus(anime.anime.id, newLikedState)
+                Log.d(tag, "Toggled like for: ${anime.anime.title}")
+            } catch (e: Exception) {
+                Log.e(tag, "Error toggling like", e)
+                _error.value = "შეცდომა: ${e.message}"
+            }
+        }
+    }
+
+    fun deleteAnime(anime: SavedAnime) {
+        viewModelScope.launch {
+            try {
+                animeRepository.deleteAnime(anime.anime.id)
+                Log.d(tag, "Deleted anime: ${anime.anime.title}")
+            } catch (e: Exception) {
+                Log.e(tag, "Error deleting anime", e)
+                _error.value = "შეცდომა წაშლისას: ${e.message}"
+            }
         }
     }
 }

@@ -5,21 +5,21 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ge.tsu.finalProject.domain.model.SavedAnime
 import ge.tsu.finalProject.domain.model.WatchStatus
-import ge.tsu.finalProject.domain.usecase.DeleteAnimeUseCase
-import ge.tsu.finalProject.domain.usecase.GetPlanToWatchAnimeUseCase
-import ge.tsu.finalProject.domain.usecase.GetWatchedAnimeUseCase
-import ge.tsu.finalProject.domain.usecase.UpdateLikeStatusUseCase
-import ge.tsu.finalProject.domain.usecase.UpdateWatchStatusUseCase
+import ge.tsu.finalProject.domain.usecase.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MySpaceViewModel(
+@HiltViewModel
+class MySpaceViewModel @Inject constructor(
+    private val getAllSavedAnimeUseCase: GetAllSavedAnimeUseCase,
     private val getWatchedAnimeUseCase: GetWatchedAnimeUseCase,
     private val getPlanToWatchAnimeUseCase: GetPlanToWatchAnimeUseCase,
-    private val updateLikeStatusUseCase: UpdateLikeStatusUseCase,
-    private val updateWatchStatusUseCase: UpdateWatchStatusUseCase,
-    private val deleteAnimeUseCase: DeleteAnimeUseCase
+    private val updateLikeStatusUseCase: UpdateLikeStatusUseCase,  // Added!
+    private val updateWatchStatusUseCase: UpdateWatchStatusUseCase,  // Added!
+    private val deleteAnimeUseCase: DeleteAnimeUseCase  // Added!
 ) : ViewModel() {
 
     val watchedAnime: LiveData<List<SavedAnime>> = getWatchedAnimeUseCase().asLiveData()

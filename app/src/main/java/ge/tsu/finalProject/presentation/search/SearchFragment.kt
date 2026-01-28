@@ -4,28 +4,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
-import ge.tsu.finalProject.R
+import dagger.hilt.android.AndroidEntryPoint
 import ge.tsu.finalProject.databinding.FragmentSearchBinding
-import ge.tsu.finalProject.domain.model.Anime
-import ge.tsu.finalProject.domain.model.WatchStatus
-import ge.tsu.finalProject.presentation.common.ViewState
-import ge.tsu.finalProject.util.gone
-import ge.tsu.finalProject.util.hideKeyboard
-import ge.tsu.finalProject.util.visible
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SearchFragment : Fragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: SearchViewModel by viewModels { SearchViewModelFactory() }
-
-    private lateinit var searchAdapter: SearchResultAdapter
+    private val viewModel: SearchViewModel by viewModels()
+    private lateinit var searchAdapter: SearchAnimeAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,26 +35,45 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Setup RecyclerView FIRST
         setupRecyclerView()
+
+        // Setup SearchView
         setupSearchView()
+
+        // Observe ViewModel
         observeViewModel()
     }
 
     private fun setupRecyclerView() {
-        searchAdapter = SearchResultAdapter(
-            onWatchedClick = { anime: Anime ->
-                viewModel.saveAnime(anime, WatchStatus.WATCHED)
-                showSnackbar("${anime.title} დამატა ნანახებში ✓")
+        searchAdapter = SearchAnimeAdapter(
+            onItemClick = { anime ->
+                // Handle detail view
+                Toast.makeText(requireContext(), anime.title, Toast.LENGTH_SHORT).show()
             },
-            onPlanToWatchClick = { anime: Anime ->
-                viewModel.saveAnime(anime, WatchStatus.PLAN_TO_WATCH)
-                showSnackbar("${anime.title} დამატა სანახავებში 📋")
+            onAddToWatchedClick = { anime ->
+                viewModel.addToWatched(anime)
+                Toast.makeText(
+                    requireContext(),
+                    "${anime.title} დაემატა ნანახებში",
+                    Toast.LENGTH_SHORT
+                ).show()
+            },
+            onAddToPlanToWatchClick = { anime ->
+                viewModel.addToPlanToWatch(anime)
+                Toast.makeText(
+                    requireContext(),
+                    "${anime.title} დაემატა სანახავებში",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         )
 
+        // Make sure this matches your fragment_search.xml
         binding.rvSearchResults.apply {
-            layoutManager = LinearLayoutManager(requireContext())
             adapter = searchAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+            setHasFixedSize(true)
         }
     }
 
@@ -66,68 +81,54 @@ class SearchFragment : Fragment() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
-                    viewModel.searchAnime(it)
-                    hideKeyboard()
+                    if (it.isNotBlank()) {
+                        viewModel.searchAnime(it)
+                        // Hide keyboard
+                        binding.searchView.clearFocus()
+                    }
                 }
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText.isNullOrBlank()) {
-                    viewModel.clearSearch()
-                } else if (newText.length >= 3) {
-                    viewModel.searchAnime(newText)
-                }
+                // Optional: implement debounced search
                 return true
             }
         })
-
-        binding.btnClearSearch.setOnClickListener {
-            binding.searchView.setQuery("", false)
-            binding.searchView.clearFocus()
-            viewModel.clearSearch()
-        }
     }
 
     private fun observeViewModel() {
-        viewModel.searchResults.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is ViewState.Idle -> {
-                    binding.progressBar.gone()
-                    binding.rvSearchResults.gone()
-                    binding.emptyStateLayout.visible()
-                    binding.tvEmptyState.text = getString(R.string.search_hint)
-                }
-                is ViewState.Loading -> {
-                    binding.progressBar.visible()
-                    binding.rvSearchResults.gone()
-                    binding.emptyStateLayout.gone()
-                }
-                is ViewState.Success -> {
-                    binding.progressBar.gone()
+        // Observe search results
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.searchResults.collect { results ->
+                searchAdapter.submitList(results)
 
-                    if (state.data.isEmpty()) {
-                        binding.rvSearchResults.gone()
-                        binding.emptyStateLayout.visible()
-                        binding.tvEmptyState.text = getString(R.string.no_results)
-                    } else {
-                        binding.rvSearchResults.visible()
-                        binding.emptyStateLayout.gone()
-                        searchAdapter.updateList(state.data)
-                    }
-                }
-                is ViewState.Error -> {
-                    binding.progressBar.gone()
-                    binding.rvSearchResults.gone()
-                    binding.emptyStateLayout.visible()
-                    binding.tvEmptyState.text = state.message
+                // Show/hide empty state
+                if (results.isEmpty() && !viewModel.isLoading.value) {
+                    binding.rvSearchResults.visibility = View.GONE
+                    binding.tvEmptyState.visibility = View.VISIBLE
+                } else {
+                    binding.rvSearchResults.visibility = View.VISIBLE
+                    binding.tvEmptyState.visibility = View.GONE
                 }
             }
         }
-    }
 
-    private fun showSnackbar(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+        // Observe loading state
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isLoading.collect { isLoading ->
+                binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            }
+        }
+
+        // Observe errors
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.error.collect { errorMessage ->
+                errorMessage?.let {
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

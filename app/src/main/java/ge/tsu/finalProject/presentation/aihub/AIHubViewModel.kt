@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ge.tsu.finalProject.domain.model.DailyRecommendation
 import ge.tsu.finalProject.domain.model.SavedAnime
 import ge.tsu.finalProject.domain.model.TasteAnalysis
@@ -13,11 +14,13 @@ import ge.tsu.finalProject.domain.usecase.GetDailyRecommendationUseCase
 import ge.tsu.finalProject.domain.usecase.GetUserTasteAnalysisUseCase
 import ge.tsu.finalProject.presentation.common.ViewState
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AIHubViewModel(
-    private val getAllSavedAnimeUseCase: GetAllSavedAnimeUseCase,
-    private val getTasteAnalysisUseCase: GetUserTasteAnalysisUseCase,
-    private val getDailyRecommendationUseCase: GetDailyRecommendationUseCase
+@HiltViewModel
+class AIHubViewModel @Inject constructor(
+    private val getUserTasteAnalysisUseCase: GetUserTasteAnalysisUseCase,
+    private val getDailyRecommendationUseCase: GetDailyRecommendationUseCase,
+    private val getAllSavedAnimeUseCase: GetAllSavedAnimeUseCase
 ) : ViewModel() {
 
     val allSavedAnime: LiveData<List<SavedAnime>> = getAllSavedAnimeUseCase().asLiveData()
@@ -45,7 +48,7 @@ class AIHubViewModel(
         viewModelScope.launch {
             _tasteAnalysis.value = ViewState.Loading
 
-            getTasteAnalysisUseCase(savedAnime).fold(
+            getUserTasteAnalysisUseCase(savedAnime).fold(  // Changed from getTasteAnalysisUseCase
                 onSuccess = { analysis ->
                     _tasteAnalysis.value = ViewState.Success(analysis)
                 },

@@ -4,24 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
 import ge.tsu.finalProject.databinding.FragmentLibraryBinding
-import ge.tsu.finalProject.presentation.common.ViewState
-import ge.tsu.finalProject.util.gone
-import ge.tsu.finalProject.util.visible
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class LibraryFragment : Fragment() {
 
     private var _binding: FragmentLibraryBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: LibraryViewModel by viewModels { LibraryViewModelFactory() }
-
-    private lateinit var animeAdapter: AnimeLibraryAdapter
+    private val viewModel: LibraryViewModel by viewModels()
+    private lateinit var animeAdapter: AnimeAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,107 +34,103 @@ class LibraryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Setup RecyclerView FIRST - before observing data
         setupRecyclerView()
-        setupSwipeRefresh()
-        setupRetryButton()
+
+        // Setup filter chips
+        setupFilterChips()
+
+        // Then observe ViewModel
         observeViewModel()
     }
 
     private fun setupRecyclerView() {
-        animeAdapter = AnimeLibraryAdapter(
+        // Initialize adapter with callbacks
+        animeAdapter = AnimeAdapter(
+            onItemClick = { anime ->
+                // Handle item click - navigate to detail screen
+                Toast.makeText(requireContext(), anime.anime.title, Toast.LENGTH_SHORT).show()
+            },
             onWatchedClick = { anime ->
-                viewModel.markAsWatched(anime)
-                showSnackbar("${anime.title} დამატა ნანახებში ✓")
+                viewModel.toggleWatched(anime)
             },
             onPlanToWatchClick = { anime ->
-                viewModel.markAsPlanToWatch(anime)
-                showSnackbar("${anime.title} დამატა სანახავებში 📋")
+                viewModel.togglePlanToWatch(anime)
+            },
+            onDeleteClick = { anime ->
+                viewModel.deleteAnime(anime)
+                Toast.makeText(
+                    requireContext(),
+                    "${anime.anime.title} წაიშალა",
+                    Toast.LENGTH_SHORT
+                ).show()
+            },
+            onLikeClick = { anime ->
+                viewModel.toggleLike(anime)
             }
         )
 
-        binding.rvAnimeLibrary.apply {
-            layoutManager = GridLayoutManager(requireContext(), 2)
+        // Set adapter and layout manager - using correct ID from XML
+        binding.recyclerView.apply {
             adapter = animeAdapter
+            layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
-
-            // Infinite Scroll Listener
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-
-                    val layoutManager = recyclerView.layoutManager as GridLayoutManager
-                    val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-                    val totalItemCount = layoutManager.itemCount
-
-                    // Load more when reaching 5 items before the end
-                    if (lastVisibleItemPosition >= totalItemCount - 5 && dy > 0) {
-                        viewModel.loadNextPage()
-                    }
-                }
-            })
         }
     }
 
-    private fun setupSwipeRefresh() {
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.refresh()
+    private fun setupFilterChips() {
+        binding.chipAll.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                viewModel.setFilter(FilterType.ALL)
+            }
         }
-    }
 
-    private fun setupRetryButton() {
-        binding.btnRetry.setOnClickListener {
-            viewModel.refresh()
+        binding.chipWatched.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                viewModel.setFilter(FilterType.WATCHED)
+            }
+        }
+
+        binding.chipPlanToWatch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                viewModel.setFilter(FilterType.PLAN_TO_WATCH)
+            }
         }
     }
 
     private fun observeViewModel() {
-        viewModel.animeList.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is ViewState.Loading -> {
-                    if (animeAdapter.itemCount == 0) {
-                        binding.progressBar.visible()
-                        binding.rvAnimeLibrary.gone()
-                        binding.errorLayout.gone()
-                    }
-                }
-                is ViewState.Success -> {
-                    binding.progressBar.gone()
-                    binding.rvAnimeLibrary.visible()
-                    binding.errorLayout.gone()
-                    binding.swipeRefreshLayout.isRefreshing = false
+        // Observe filtered anime list
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.filteredAnimeList.collect { animeList ->
+                // Update adapter with new data
+                animeAdapter.submitList(animeList)
 
-                    animeAdapter.submitList(state.data)
-
-                    // Show empty state if needed
-                    if (state.data.isEmpty()) {
-                        binding.errorLayout.visible()
-                        binding.rvAnimeLibrary.gone()
-                        binding.tvError.text = "ვერ მოიძებნა anime"
-                        binding.btnRetry.visible()
-                    }
-                }
-                is ViewState.Error -> {
-                    binding.progressBar.gone()
-                    binding.swipeRefreshLayout.isRefreshing = false
-
-                    if (animeAdapter.itemCount == 0) {
-                        binding.rvAnimeLibrary.gone()
-                        binding.errorLayout.visible()
-                        binding.tvError.text = state.message
-                        binding.btnRetry.visible()
-                    } else {
-                        showSnackbar(state.message)
-                    }
-                }
-                is ViewState.Idle -> {
-                    // Do nothing
+                // Show/hide empty state - using correct ID from XML
+                if (animeList.isEmpty()) {
+                    binding.recyclerView.visibility = View.GONE
+                    binding.emptyStateLayout.visibility = View.VISIBLE
+                } else {
+                    binding.recyclerView.visibility = View.VISIBLE
+                    binding.emptyStateLayout.visibility = View.GONE
                 }
             }
         }
-    }
 
-    private fun showSnackbar(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+        // Observe loading state
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isLoading.collect { isLoading ->
+                binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            }
+        }
+
+        // Observe errors
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.error.collect { errorMessage ->
+                errorMessage?.let {
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

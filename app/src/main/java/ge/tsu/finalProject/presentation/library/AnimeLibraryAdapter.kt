@@ -45,9 +45,13 @@ class AnimeLibraryAdapter(
                 }
 
                 // Episodes
-                tvEpisodes.text = "${anime.episodes ?: "?"} ეპიზოდი"
+                tvEpisodes.text = if (anime.episodes != null && anime.episodes > 0) {
+                    "${anime.episodes} ეპიზოდი"
+                } else {
+                    "? ეპიზოდი"
+                }
 
-                // Type
+
                 tvType.text = anime.type ?: "TV"
 
                 // Load Image with Coil
@@ -55,20 +59,17 @@ class AnimeLibraryAdapter(
                     crossfade(true)
                     placeholder(R.drawable.ic_placeholder_anime)
                     error(R.drawable.ic_error_image)
-                }
-
-                // Watched Button
-                btnWatched.setOnClickListener {
+                }btnWatched.setOnClickListener {
                     onWatchedClick(anime)
                 }
 
-                // Plan to Watch Button
                 btnPlanToWatch.setOnClickListener {
                     onPlanToWatchClick(anime)
                 }
 
-                // Card Click (optional - for details)
+
                 root.setOnClickListener {
+                    // TODO: Navigate to detail screen
                 }
             }
         }
