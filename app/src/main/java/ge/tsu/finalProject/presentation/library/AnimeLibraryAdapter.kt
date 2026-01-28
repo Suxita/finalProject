@@ -54,19 +54,19 @@ class AnimeLibraryAdapter(
 
                 tvType.text = anime.type ?: "TV"
 
-                // Load Image with Coil
                 ivPoster.load(anime.largeImageUrl) {
                     crossfade(true)
                     placeholder(R.drawable.ic_placeholder_anime)
                     error(R.drawable.ic_error_image)
-                }btnWatched.setOnClickListener {
+                }
+
+                btnWatched.setOnClickListener {
                     onWatchedClick(anime)
                 }
 
                 btnPlanToWatch.setOnClickListener {
                     onPlanToWatchClick(anime)
                 }
-
 
                 root.setOnClickListener {
                     // TODO: Navigate to detail screen

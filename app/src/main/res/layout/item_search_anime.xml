@@ -17,13 +17,13 @@
         <!-- Cover Image -->
         <ImageView
             android:id="@+id/ivCover"
-            android:layout_width="80dp"
-            android:layout_height="120dp"
+            android:layout_width="100dp"
+            android:layout_height="150dp"
             android:scaleType="centerCrop"
-            android:contentDescription="Anime cover"
+            android:contentDescription="@string/app_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_placeholder" />
+            tools:src="@drawable/ic_placeholder_anime" />
 
         <!-- Title -->
         <TextView
@@ -31,137 +31,119 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:textColor="@color/black"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:maxLines="2"
-            android:ellipsize="end"
-            app:layout_constraintStart_toEndOf="@id/ivCover"
+            android:textColor="?android:textColorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/ivCover"
-            tools:text="Attack on Titan" />
+            app:layout_constraintStart_toEndOf="@id/ivCover"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Shingeki no Kyojin" />
 
-        <!-- Info Row -->
-        <LinearLayout
-            android:id="@+id/infoRow"
-            android:layout_width="0dp"
+        <!-- Score -->
+        <TextView
+            android:id="@+id/tvScore"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginStart="12dp"
             android:layout_marginTop="4dp"
+            android:textColor="@android:color/holo_orange_dark"
+            android:textSize="14sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@id/ivCover"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle">
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            tools:text="⭐ 8.5" />
 
-            <TextView
-                android:id="@+id/tvScore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/teal_700"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:drawablePadding="2dp"
-                app:drawableStartCompat="@drawable/ic_star"
-                tools:text="8.5" />
+        <TextView
+            android:id="@+id/tvEpisodes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:textSize="12sp"
+            android:textColor="?android:textColorSecondary"
+            app:layout_constraintStart_toEndOf="@id/ivCover"
+            app:layout_constraintTop_toBottomOf="@id/tvScore"
+            tools:text="24 ეპიზოდი" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" • "
-                android:textColor="@color/gray"
-                android:layout_marginHorizontal="4dp" />
+        <TextView
+            android:id="@+id/tvYear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:textSize="12sp"
+            android:textColor="?android:textColorSecondary"
+            app:layout_constraintStart_toEndOf="@id/tvEpisodes"
+            app:layout_constraintTop_toBottomOf="@id/tvScore"
+            tools:text="TV • 2013" />
 
-            <TextView
-                android:id="@+id/tvEpisodes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/gray"
-                android:textSize="12sp"
-                tools:text="24 ეპიზოდი" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" • "
-                android:textColor="@color/gray"
-                android:layout_marginHorizontal="4dp" />
-
-            <TextView
-                android:id="@+id/tvYear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/gray"
-                android:textSize="12sp"
-                tools:text="2013" />
-
-        </LinearLayout>
-
-        <!-- Genres -->
         <TextView
             android:id="@+id/tvGenres"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="4dp"
-            android:textColor="@color/gray"
-            android:textSize="12sp"
-            android:maxLines="1"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
-            app:layout_constraintStart_toEndOf="@id/ivCover"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="?android:textColorSecondary"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/infoRow"
+            app:layout_constraintStart_toEndOf="@id/ivCover"
+            app:layout_constraintTop_toBottomOf="@id/tvEpisodes"
             tools:text="Action, Drama, Fantasy" />
 
-        <!-- Synopsis -->
         <TextView
             android:id="@+id/tvSynopsis"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="8dp"
-            android:textColor="@color/black"
-            android:textSize="13sp"
-            android:maxLines="2"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
-            app:layout_constraintStart_toEndOf="@id/ivCover"
+            android:maxLines="3"
+            android:textSize="12sp"
+            android:textColor="?android:textColorSecondary"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivCover"
             app:layout_constraintTop_toBottomOf="@id/tvGenres"
-            tools:text="Several hundred years ago, humans were nearly exterminated by Titans..." />
+            tools:text="Several hundred years ago, humans were nearly exterminated by giants..." />
 
-        <!-- Add Buttons -->
+        <!-- Action Buttons -->
         <LinearLayout
-            android:id="@+id/addButtons"
-            android:layout_width="match_parent"
+            android:id="@+id/buttonLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/ivCover"
+            android:orientation="horizontal"
+            android:gravity="end"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/ivCover">
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/btnAddWatched"
-                android:layout_width="0dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="+ ნანახები"
-                android:textSize="13sp"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_check"
-                style="@style/Widget.Material3.Button.TonalButton" />
+                android:text="@string/btn_watched"
+                android:textSize="12sp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/btnAddPlanToWatch"
-                android:layout_width="0dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:text="+ სანახავი"
-                android:textSize="13sp"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_bookmark"
-                style="@style/Widget.Material3.Button.TonalButton" />
+                android:text="@string/btn_plan_to_watch"
+                android:textSize="12sp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
 
         </LinearLayout>
 

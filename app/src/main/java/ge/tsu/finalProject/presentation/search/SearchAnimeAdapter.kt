@@ -38,14 +38,14 @@ class SearchAnimeAdapter(
                 // Set title
                 tvTitle.text = anime.title
 
-                // Set synopsis
+                // Set synopsis (limit to 150 characters)
                 tvSynopsis.text = anime.synopsis?.take(150) ?: "აღწერა არ არის"
 
-                // Load image
+                // Load image with Coil
                 ivCover.load(anime.largeImageUrl ?: anime.imageUrl) {
                     crossfade(true)
-                    placeholder(R.drawable.ic_placeholder)
-                    error(R.drawable.ic_error)
+                    placeholder(R.drawable.ic_placeholder_anime)
+                    error(R.drawable.ic_error_image)
                 }
 
                 // Set genres
@@ -54,17 +54,27 @@ class SearchAnimeAdapter(
                     ?: "ჟანრი არ არის"
 
                 // Set score
-                tvScore.text = anime.score?.toString() ?: "N/A"
+                tvScore.text = if (anime.score != null) {
+                    "⭐ ${anime.score}"
+                } else {
+                    "⭐ N/A"
+                }
 
                 // Set episodes
                 tvEpisodes.text = if (anime.episodes != null && anime.episodes > 0) {
                     "${anime.episodes} ეპიზოდი"
                 } else {
-                    "N/A"
+                    "? ეპიზოდი"
                 }
 
-                // Set year
-                tvYear.text = anime.year?.toString() ?: "N/A"
+                // Set type and year together (TV • 2013)
+                val typeYear = buildString {
+                    append(anime.type ?: "TV")
+                    if (anime.year != null) {
+                        append(" • ${anime.year}")
+                    }
+                }
+                tvYear.text = typeYear
 
                 // Click listeners
                 root.setOnClickListener {
